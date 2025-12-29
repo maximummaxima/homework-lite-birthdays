@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    name: Build & unit tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "24"
+          cache: maven
+
+      - name: Build + unit tests
+        run: mvn -B -ntp test
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            target/surefire-reports/**
+            target/failsafe-reports/**
+          if-no-files-found: ignore
+
+  acceptance-tests:
+    name: Blackbox acceptance tests (Docker)
+    runs-on: ubuntu-latest
+    needs: build-test
+    if: ${{ hashFiles('Dockerfile') != '' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run acceptance tests script
+        env:
+          CI_PROJECT_NAME: ${{ github.event.repository.name }}
+          CI_COMMIT_SHA: ${{ github.sha }}
+          GITLAB_DOCKER_PROXY: docker.io
+        run: |
+          chmod +x scripts/run_acceptance_tests.sh
+          ./scripts/run_acceptance_tests.sh

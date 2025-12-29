@@ -1,0 +1,35 @@
+{
+  "files": [
+    "part1.txt",
+    "part2.txt"
+  ],
+  "totalRequestsCount": 256,
+  "responseSizeInBytes": {
+    "average": 206.05,
+    "max": 3318.0
+  },
+  "resources": [
+    {
+      "resource": "/downloads/product_1",
+      "totalRequestsCount": 145
+    },
+    {
+      "resource": "/downloads/product_2",
+      "totalRequestsCount": 111
+    }
+  ],
+  "responseCodes": [
+    {
+      "code": 304,
+      "totalResponsesCount": 139
+    },
+    {
+      "code": 404,
+      "totalResponsesCount": 103
+    },
+    {
+      "code": 200,
+      "totalResponsesCount": 14
+    }
+  ]
+}
